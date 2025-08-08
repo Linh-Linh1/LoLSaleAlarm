@@ -1,11 +1,17 @@
 import tkinter as tk
 from tkinter import Listbox, Scrollbar, Entry, Frame, Label, Button
+from data_fetcher import get_latest_ddragon_version, get_all_skins
 
 class SkinManagerApp:
-    def __init__(self, root, all_skins):
+    def __init__(self, root):
         self.root = root
-        self.all_skins = all_skins
-        self.root.title("LoL Skin Sale Alarm")
+
+        print("Lade Skin-Daten für die GUI...")
+        version = get_latest_ddragon_version()
+        self.all_skins = get_all_skins(version)
+        print("Skin-Daten geladen.")
+        
+        self.root.title("LoL Skin Sale Alarm - Konfiguration")
         self.root.geometry("800x600")
 
         self.search_frame = Frame(self.root)
@@ -31,43 +37,35 @@ class SkinManagerApp:
         self.save_button.pack(side=tk.LEFT)
         self.status_label = Label(self.bottom_frame, text="", fg="green")
         self.status_label.pack(side=tk.LEFT, padx=(10, 0))
+
         self.populate_list(self.all_skins)
 
     def save_wishlist(self):
-        """Holt die ausgewählten Skins aus der Listbox und schreibt sie in die Datei."""
         print("Speichere Wunschliste...")
         selected_indices = self.skin_listbox.curselection()
         selected_skins = [self.skin_listbox.get(i) for i in selected_indices]
-
         try:
             with open('wished_skins.txt', 'w', encoding='utf-8') as f:
                 for skin in selected_skins:
                     f.write(f"{skin}\n")
-
             status_message = f"{len(selected_skins)} Skins in der Wunschliste gespeichert."
             self.status_label.config(text=status_message)
             print(status_message)
-
         except IOError as e:
             error_message = "Fehler beim Speichern der Datei!"
             self.status_label.config(text=error_message, fg="red")
             print(f"{error_message}: {e}")
 
-
     def populate_list(self, skin_list):
-        """Füllt die Listbox mit den Skins aus der übergebenen Liste."""
         self.skin_listbox.delete(0, tk.END)
         for skin in skin_list:
             self.skin_listbox.insert(tk.END, skin)
 
     def update_list(self, event=None):
-        """Filtert die Skin-Liste basierend auf dem Text in der Suchleiste."""
         self.status_label.config(text="")
-        
         search_term = self.search_entry.get().lower()
         if not search_term:
             filtered_skins = self.all_skins
         else:
             filtered_skins = [skin for skin in self.all_skins if search_term in skin.lower()]
-        
         self.populate_list(filtered_skins)
