@@ -39,7 +39,6 @@ def get_all_skins(version):
         return []
 
 def get_weekly_sales():
-    print("\nSuche nach wöchentlichen Skin-Sales...")
     sales_url = "https://turbosmurfs.gg/lol-weekly-sale"
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
     try:
@@ -50,7 +49,7 @@ def get_weekly_sales():
         if not sales_container: return []
         skin_elements = sales_container.find_all('a', style=lambda value: value and 'font-weight:700' in value)
         sale_skin_list = [skin.get_text(strip=True) for skin in skin_elements]
-        if sale_skin_list: print(f"Erfolgreich {len(sale_skin_list)} Items im Angebot gefunden.")
+        if sale_skin_list: print(f"\n{len(sale_skin_list)} Skins im Angebot     ", end='')
         else: print("Warnung: Sales-Container gefunden, aber keine Skin-Namen darin.")
         return sale_skin_list
     except requests.exceptions.RequestException as e:
@@ -58,18 +57,17 @@ def get_weekly_sales():
         return []
 
 def get_wished_skins():
-    print("\nLese Wunschliste aus 'wished_skins.txt'...")
     try:
         with open('wished_skins.txt', 'r', encoding='utf-8') as f:
             wished_list = [line.strip() for line in f if line.strip()]
-            print(f"{len(wished_list)} Skins auf der Wunschliste gefunden.")
+            print(f"{len(wished_list)} Skins in Wunschliste")
             return wished_list
     except FileNotFoundError:
         print("Info: 'wished_skins.txt' nicht gefunden. Erstelle eine, um deine Wunsch-Skins einzutragen.")
         return []
 
 def find_matches(sales_list, wished_list):
-    print("\nVergleiche Sale-Angebote mit der Wunschliste...")
+    print("Suche Matches...", end='')
     sales_set = set(sales_list)
     wished_set = set(wished_list)
     matches = sales_set & wished_set
