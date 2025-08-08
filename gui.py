@@ -1,5 +1,3 @@
-# gui.py
-
 import tkinter as tk
 from tkinter import Listbox, Scrollbar, Entry, Frame, Label, Button
 from data_fetcher import get_latest_ddragon_version, get_all_skins
