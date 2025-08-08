@@ -61,7 +61,7 @@ def get_weekly_sales():
         skin_elements = sales_container.find_all('a', style=lambda value: value and 'font-weight:700' in value)
         sale_skin_list = [skin.get_text(strip=True) for skin in skin_elements]
         if sale_skin_list:
-            print(f"Erfolgreich {len(sale_skin_list)} Items im Angebot gefunden.")
+            print(f"Erfolgreich {len(sale_skin_list)} Skins im Angebot gefunden.")
         else:
             print("Warnung: Sales-Container gefunden, aber keine Skin-Namen darin.")
         return sale_skin_list
@@ -69,23 +69,39 @@ def get_weekly_sales():
         print(f"Fehler: Konnte die Sales-Webseite nicht erreichen. {e}")
         return []
 
+def get_wished_skins():
+    print("\nLese Wunschliste aus 'wished_skins.txt'...")
+    try:
+        with open('wished_skins.txt', 'r', encoding='utf-8') as f:
+            wished_list = [line.strip() for line in f if line.strip()]
+            print(f"{len(wished_list)} Skins auf der Wunschliste gefunden.")
+            return wished_list
+    except FileNotFoundError:
+        print("Info: 'wished_skins.txt' nicht gefunden. Erstelle eine, um deine Wunsch-Skins einzutragen.")
+        return []
+
+def find_matches(sales_list, wished_list):
+    print("\nVergleiche Sale-Angebote mit der Wunschliste...")
+    sales_set = set(sales_list)
+    wished_set = set(wished_list)
+    matches = sales_set & wished_set
+    return list(matches)
+
 if __name__ == "__main__":
     print("--- LoL Skin Sale Alarm ---")
     
-    print("\nSchritt 1.1: Rufe alle existierenden Skins ab...")
-    latest_version = get_latest_ddragon_version()
-    if latest_version:
-        all_skins = get_all_skins(latest_version)
-        if all_skins:
-            print(f"-> {len(all_skins)} Skins in der Datenbank.")
-        else:
-            print("-> Konnte keine Skins abrufen.")
-            
-    print("\nSchritt 1.2: Rufe aktuelle Sales ab...")
     sale_skins = get_weekly_sales()
-    if sale_skins:
-        print("\n--- Aktuell im Angebot ---")
-        for skin in sale_skins:
-            print(f"- {skin}")
+    wished_skins = get_wished_skins()
+
+    if sale_skins and wished_skins:
+        found_matches = find_matches(sale_skins, wished_skins)
+        
+        if found_matches:
+            print("\n!!! TREFFER GEFUNDEN !!!")
+            print("Die folgenden Skins von deiner Wunschliste sind im Angebot:")
+            for skin in found_matches:
+                print(f"- {skin}")
+        else:
+            print("\nKeine Übereinstimmungen gefunden. Keiner deiner Wunsch-Skins ist diese Woche im Angebot.")
     else:
-        print("-> Konnte keine aktuellen Sales finden.")
+        print("\nVergleich nicht möglich, da entweder die Sales-Liste oder die Wunschliste leer ist.")
